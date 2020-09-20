@@ -358,6 +358,9 @@ void RandomWriteToFile (const string* text, size_t nLines, FILE *file)
             n += 2;
             }
         }
+    
+    free (str);
+    str = NULL;
     }
 
 //-----------------------------------------------------------------------------
