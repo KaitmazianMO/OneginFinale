@@ -6,39 +6,47 @@
 #include <ctype.h>
 #include <time.h>
 
-/*!
-    \brief Считает количество вхождений символа в массиве.
-    \param [in] Array- массив, в котором производится поиск;
-    \param [in] c    - искомый символ;
-    \param [in] size - размер массива;
-    \return количество вхождений символа в массив.
-*/
+//}----------------------------------------------------------------------------
+//! \brief Считает количество вхождений символа в массиве.
+//!
+//! \param [in] Array- массив, в котором производится поиск;
+//! \param [in] c    - искомый символ;
+//! \param [in] size - размер массива;
+//!
+//! \return количество вхождений символа в массив.
+//}----------------------------------------------------------------------------
 
 size_t count      (const char *Array, size_t size, char sym);
 
-/*!
-    \brief Возвращает минимальный элемент, из a и b.
-*/
+//}----------------------------------------------------------------------------
+//! \brief Возвращает минимальный элемент, из a и b.
+//}----------------------------------------------------------------------------
 
 int    min        (int a, int b);
 
-/*!
-    \brief Считает количество символов файле.
-    \param [in] file - файл, в котором считается количество символов;
-    \return Количество символов файле.
-*/
+//}----------------------------------------------------------------------------
+//! \brief Считает количество символов файле.
+//!
+//! \param [in] file - файл, в котором считается количество символов;
+//!
+//! \return Количество символов файле.
+//}----------------------------------------------------------------------------
 
 size_t SizeOfFile (FILE *file);
 
-/*!
-    Записывает в файл текст, обрамляя его полосками.
-    \param [in] file - файл, в который производится запись;
-    \param [in] str  - записываемый текст;
-*/
+//}----------------------------------------------------------------------------
+//! \brief Записывает в файл текст, обрамляя его полосками.
+//!
+//! \param [in] file - файл, в который производится запись;
+//! \param [in] str  - записываемый текст;
+//}----------------------------------------------------------------------------
 
-void PrintTitle   (FILE* file, const char *str);
+void   PrintTitle (FILE* file, const char *str);
 
-///Структура строки.
+//}----------------------------------------------------------------------------
+//!Структура строки.
+//}----------------------------------------------------------------------------
+
 
 typedef struct string
     {
@@ -47,75 +55,87 @@ typedef struct string
     };
 
 
-/*!
-    \brief Заполняет массив строк, используя массив символов.
-    \param [in] str    - указаетль на начало массива строк,
-                         в который ведется запись;
-    \param [in] nLines - размер массива строк;
-    \param [in] ch     - указаетль на начало массива символов,
-                         из которого ведется запись;
-    \param [in] nChars - размер масива символов;
-    \return Количество записанных в массив строк.
-*/
+//}----------------------------------------------------------------------------
+//! \brief Заполняет массив строк, используя массив символов.
+//!
+//! \param [in] str    - указаетль на начало массива строк,
+//!                      в который ведется запись;
+//! \param [in] nLines - размер массива строк;
+//! \param [in] ch     - указаетль на начало массива символов,
+//!                      из которого ведется запись;
+//! \param [in] nChars - размер масива символов;
+//!
+//! \return Количество записанных в массив строк.
+//}----------------------------------------------------------------------------
 
-int GetStrings          (string *str, size_t nLines, const char *ch, size_t nChars);
+int    GetStrings          (string *str, size_t nLines, const char *ch, size_t nChars);
 
-/*!
-    \brief Записывает сожержимое массива строк в файл.
-    \param [in] str    - указаетль на начало массива строк,
-                         из которого ведется запись;
-    \param [in] nLines - размер массива строк;
-    \param [in] file   - файл, в который ведется запись;
-    \param [in] ORDER  - поределяет порядок записи в файл
-                        прямой / обратный(по умолчанию - прямой);
-*/
+//}----------------------------------------------------------------------------
+//! \brief Записывает сожержимое массива строк в файл.
+//!
+//! \param [in] str    - указаетль на начало массива строк,
+//!                      из которого ведется запись;
+//! \param [in] nLines - размер массива строк;
+//! \param [in] file   - файл, в который ведется запись;
+//}----------------------------------------------------------------------------
 
-void WriteToFile        (const string* str, size_t nLines, FILE *file);
+void   WriteToFile         (const string* str, size_t nLines, FILE *file);
 
-/*!
-    \brief относительно случайно записывает пары строк в файл.
-*/
+//}----------------------------------------------------------------------------
+//! Относительно случайно записывает рифмованные строки в файл.
+//}----------------------------------------------------------------------------
 
-void RandomWriteToFile  (const string *text, size_t nLines, FILE *file);
+void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file);
 
-/*!
-    Сравнивает строки с конца, игнорируя знаки пунктуации.
-*/
+//}----------------------------------------------------------------------------
+//! Сравнивает строки с конца, игнорируя знаки пунктуации.
+//}----------------------------------------------------------------------------
 
-int  BackStringComp     (const string *str1, const string *str2);
+int    BackStringComp      (const string *str1, const string *str2);
 
 
-/*!
-    Компоратор для структуры string;
-*/
+//}----------------------------------------------------------------------------
+//! Компаратор для структуры string;
+//}----------------------------------------------------------------------------
 
-int  StringComp         (const string *str1, const string *str2);
+int    StringComp          (const string *str1, const string *str2);
 
-/*!
-    \brief Проверяет является ли строка римкой
-           цифрой или набором из римских цифр.
+//}----------------------------------------------------------------------------
+//! \brief Проверяет является ли строка римcкой
+//!        цифрой или набором из римских цифр.
+//!
+//! \param [in] - проверяемая строка;
+//}----------------------------------------------------------------------------
 
-    \param [in] - проверяемая строка;
-*/
+bool   isChapterTitle      (const char* str);
 
-bool isChapterTitle     (const char* str);
+//}----------------------------------------------------------------------------
+//! \brief Записывает все символы файла в буффер и
+//!        преобразует их в массив отсортированных строк.
+//!
+//! \param [in] file_name - имя читаемого файла;
+//! \param [in] text      - указатель на массив строк, в который будут
+//!                         записываться содержательные строки файла
+//!                        (все кроме пустых строк, названий глав и тд);
+//! \param [in] bugger    - массив указателей, в который записываются
+//!                         символы файла file_name;
+//!
+//! \return Количество записанных "содержательных" строк в *text.
+//}----------------------------------------------------------------------------
 
-/*!
-    \brief Записывает все символы файла в буффер и преобразует их в массив строк.
+size_t GetSortedStrings    (const char *file_name,  string **text,
+                                                    char   **buffer);
 
-    \param [in] file_name - имя читаемого файла;
-    \param [in] text      - указатель на массив строк, в который будут
-                            записываться содержательные строки файла
-                            (все кроме пустых строк, названий глав и тд);
-    \param [in] bugger    - массив указателей, в который записываются
-                            символы файла file_name;
+//}----------------------------------------------------------------------------
+//! \brief Копирует текст в массив и возврашает указатель на его начало.
+//!
+//! \param [in] Text   - указатель на массив строк;
+//! \param [in] nLines - размер массива строк;
+//!
+//! \return Возвращает указатель на начало скопированного массива строк;
+//}----------------------------------------------------------------------------
 
-    \return Количество записанных "содержательных" строк в *text.
-*/
-size_t ReadFile         (const char *file_name,  string **text,
-                                                 char   **buffer);
-
-string *CopyText        (string *Text, size_t nLines);
+string *CopyText           (string *Text, size_t nLines);
 
 int main ()
     {
@@ -124,16 +144,9 @@ int main ()
     string *Onegin_sorted = NULL;
     char   *Onegin_text   = NULL;
 
-    size_t nStrings = ReadFile ("Evgen1.txt", &Onegin_sorted, &Onegin_text);
+    size_t nStrings = GetSortedStrings ("Evgen1.txt", &Onegin_sorted, &Onegin_text);
     assert (Onegin_sorted != NULL);
     assert (Onegin_text   != NULL);
-
-    printf ("Start sorting...\n");
-
-    qsort (Onegin_sorted, nStrings, sizeof(string),
-           (int (*)(const void*, const void*))StringComp);
-
-    printf ("Sorting finishied\n\n");
 
     FILE *Answer_file = fopen ("Onegin.txt", "w");
     assert (Answer_file != NULL);
@@ -164,7 +177,7 @@ int main ()
 
 //-----------------------------------------------------------------------------
 
-string *CopyText       (const string *Text, size_t nLines)
+string *CopyText        (const string *Text, size_t nLines)
     {
     string *cpyText = (string *)calloc (nLines, sizeof(string));
 
@@ -179,8 +192,8 @@ string *CopyText       (const string *Text, size_t nLines)
 
 //-----------------------------------------------------------------------------
 
-size_t ReadFile        (const char *file_name,  string **text,
-                                                char   **buffer)
+size_t GetSortedStrings (const char *file_name,  string **text,
+                                                 char   **buffer)
     {
     FILE *file_ptr = fopen (file_name, "r");
     assert (file_ptr != NULL);
@@ -192,8 +205,15 @@ size_t ReadFile        (const char *file_name,  string **text,
 
     size_t nStrings = count (*buffer, nSym, '\n');
     *text           = (string *)calloc (nStrings, sizeof (string));
-    //printf("text = %d\n", text);
+
     nStrings = GetStrings (*text, nStrings, *buffer, nSym);
+
+    printf ("Start sorting...\n");
+
+    qsort (*text, nStrings, sizeof (string),
+           (int (*)(const void*, const void*))StringComp);
+
+    printf ("Sorting finishied\n\n");
 
     fclose (file_ptr);
     file_ptr = NULL;
@@ -203,7 +223,7 @@ size_t ReadFile        (const char *file_name,  string **text,
 
 //-----------------------------------------------------------------------------
 
-size_t count           (const char *Array, size_t size, char sym)
+size_t count            (const char *Array, size_t size, char sym)
     {
     assert (Array != NULL);
 
@@ -218,14 +238,14 @@ size_t count           (const char *Array, size_t size, char sym)
 
 //-----------------------------------------------------------------------------
 
-int min                (int a, int b)
+int min                 (int a, int b)
     {
     return (a < b) ? a : b;
     }
 
 //-----------------------------------------------------------------------------
 
-int StringComp         (const string *str1, const string *str2)
+int StringComp          (const string *str1, const string *str2)
     {
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
@@ -233,16 +253,15 @@ int StringComp         (const string *str1, const string *str2)
     size_t i = 0;
     size_t j = 0;
     for (i = 0, j = 0; i < min (str1->size, str2->size) &&
-                       j < min (str1->size, str2->size);
-                       ++i, ++j)
+                       j < min (str1->size, str2->size); ++i, ++j)
         {
-        if (isgraph (*(str1->begin + i)))      //<------------------------------------------------------|
-            {                                  //                                                       |
-            i++;                              //  иногда после специальных символов стоит пробел,     игнорируем при
-            if (isspace (*(str1->begin + i))) //<-который следует не учитывать при сравнии, тк он     сравнении
-                i++;                          //  скорее относится к символу, чем к слову             знаки препинания
-            }                                  //                                                       |
-        if (isgraph (*(str2->begin + j)))      //<------------------------------------------------------|
+        if (isgraph (*(str1->begin + i)))
+            {                                 |
+            i++;
+            if (isspace (*(str1->begin + i)))
+                i++;
+            }
+        if (isgraph (*(str2->begin + j)))
             {
             j++;
             if (isspace (*(str2->begin + j)))
@@ -258,7 +277,7 @@ int StringComp         (const string *str1, const string *str2)
 
 //-----------------------------------------------------------------------------
 
-int BackStringComp     (const string *str1, const string *str2)
+int BackStringComp      (const string *str1, const string *str2)
     {
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
@@ -279,7 +298,7 @@ int BackStringComp     (const string *str1, const string *str2)
 
 //-----------------------------------------------------------------------------
 
-void WriteToFile       (const string* str, size_t nLines, FILE *file)
+void WriteToFile        (const string* str, size_t nLines, FILE *file)
     {
     assert (file != NULL);
     assert (str  != NULL);
@@ -291,7 +310,7 @@ void WriteToFile       (const string* str, size_t nLines, FILE *file)
 
 //-----------------------------------------------------------------------------
 
-void RandomWriteToFile (const string* text, size_t nLines, FILE *file)
+void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
     {
     assert(text  != NULL);
     assert(file != NULL);
@@ -313,7 +332,7 @@ void RandomWriteToFile (const string* text, size_t nLines, FILE *file)
     for (; n < nLines; i = (i*j + nLines/step) % nLines,
                        j = (i*j + nLines/step) % nLines)
         {
-        if (n % step == 0)
+        if      (n % step == 0 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
@@ -325,7 +344,7 @@ void RandomWriteToFile (const string* text, size_t nLines, FILE *file)
             }
 
 
-        else if (n % step == 4)
+        else if (n % step == 4 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
@@ -336,7 +355,7 @@ void RandomWriteToFile (const string* text, size_t nLines, FILE *file)
             n += 4;
             }
 
-        else if (n % step == 8)
+        else if (n % step == 8 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
 
@@ -358,27 +377,25 @@ void RandomWriteToFile (const string* text, size_t nLines, FILE *file)
             n += 2;
             }
         }
-    
-    free (str);
-    str = NULL;
     }
 
 //-----------------------------------------------------------------------------
 
-size_t SizeOfFile      (FILE *file)
+size_t SizeOfFile       (FILE *file)
     {
     size_t pos = 0;
 
     fseek (file, 0, SEEK_END);
     pos = ftell(file);
     fseek (file, 0, SEEK_SET);
+
     return pos;
     }
 
 //-----------------------------------------------------------------------------
 
-int GetStrings         (string *str,    size_t nLines,
-                        const char *ch, size_t nChars)
+int GetStrings          (string     *str, size_t nLines,
+                         const char *ch,  size_t nChars)
     {
     assert (ch != NULL);
 
@@ -388,8 +405,7 @@ int GetStrings         (string *str,    size_t nLines,
     bool   inside = false;    // внутри строки - true, строка закончилась - false
 
     for (i = 0, j = 0, sz = 1, inside = false;
-                       i < nChars && j < nLines;
-                       ++i, ++sz)
+           i < nChars && j < nLines; ++i, ++sz)
         {
 
         if (!inside)
@@ -431,7 +447,7 @@ int GetStrings         (string *str,    size_t nLines,
 
 //-----------------------------------------------------------------------------
 
-void PrintTitle        (FILE* file, const char *str)
+void PrintTitle         (FILE* file, const char *str)
     {
     char line    [100] = {0};
     char crosline[100] = {0};
@@ -451,7 +467,7 @@ void PrintTitle        (FILE* file, const char *str)
 
 //-----------------------------------------------------------------------------
 
-bool isChapterTitle    (const char* str)
+bool isChapterTitle     (const char* str)
     {
     for (size_t i = 0; *(str + i) != '\n' && *(str + i) != NULL; ++i)
         {
