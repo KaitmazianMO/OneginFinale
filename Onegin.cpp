@@ -117,7 +117,7 @@ bool   isChapterTitle      (const char* str);
 //! \param [in] text      - указатель на массив строк, в который будут
 //!                         записываться содержательные строки файла
 //!                        (все кроме пустых строк, названий глав и тд);
-//! \param [in] bugger    - массив указателей, в который записываются
+//! \param [in] buffer    - массив указателей, в который записываются
 //!                         символы файла file_name;
 //!
 //! \return Количество записанных "содержательных" строк в *text.
@@ -343,7 +343,6 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
             n += 4;
             }
 
-
         else if (n % step == 4 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
@@ -407,7 +406,6 @@ int GetStrings          (string     *str, size_t nLines,
     for (i = 0, j = 0, sz = 1, inside = false;
            i < nChars && j < nLines; ++i, ++sz)
         {
-
         if (!inside)
             {
             if (isChapterTitle (ch + i))
@@ -438,8 +436,7 @@ int GetStrings          (string     *str, size_t nLines,
 
             inside = false;
             }
-
-
+        
         }
 
     return j;
