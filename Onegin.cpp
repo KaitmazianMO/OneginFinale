@@ -389,7 +389,7 @@ size_t SizeOfFile       (FILE *file)
     size_t pos = 0;
 
     fseek (file, 0, SEEK_END);
-    pos = ftell (file);
+    pos = ftell(file);
     fseek (file, 0, SEEK_SET);
 
     return pos;
@@ -402,46 +402,46 @@ int GetStrings          (string     *str, size_t nLines,
     {
     assert (ch != NULL);
 
-    size_t nCh    = 0;        // индекс массива ch
-    size_t nStr   = 0;        // индекс массива str
-    int    szStr  = 1;        // размер строки в данный момент
-    bool   inside = false;    // внутри строки - true, строка закончилась - false
+    size_t ch_num  = 0;        // индекс массива ch
+    size_t str_num = 0;        // индекс массива str
+    int    sz_str  = 1;        // размер строки в данный момент
+    bool   inside  = false;    // внутри строки - true, строка закончилась - false
 
-    for (;nCh < nChars && nStr < nLines; ++nCh, ++szStr)
+    for (;ch_num < nChars && str_num < nLines; ++ch_num, ++sz_str)
         {
         if (!inside)
             {
-            if (isChapterTitle (ch + nCh))
+            if (isChapterTitle (ch + ch_num))
                 {
-                while (*(ch + nCh) != '\n' && nCh < nChars) ++nCh;
-                --szStr;     //после continue sz увеличится на 1, хотя должен остаться прежним
+                while (*(ch + ch_num) != '\n' && ch_num < nChars) ++ch_num;
+                --sz_str;
                 continue;
                 }
 
-            while ((isspace (*(ch + nCh)) ||
-                   *(ch + nCh) == '.'  )  &&  nCh < nChars)
+            while ((isspace (*(ch + ch_num)) ||
+                   *(ch + ch_num) == '.'  )  &&  ch_num < nChars)
                 {
-                ++nCh;
+                ++ch_num;
                 }
 
 
-            (str + nStr)->begin = (char *)ch + nCh;   //!?
+            (str + str_num)->begin = (char *)ch + ch_num;   //!?
             inside = true;
             }
 
-        else if (*(ch + nCh) == '\n')
+        else if (*(ch + ch_num) == '\n')
             {
-            (str + nStr)->size = szStr;
-            szStr = 0;
+            (str + str_num)->size = sz_str;
+            sz_str = 0;
 
-            ++nStr;
+            ++str_num;
 
             inside = false;
             }
 
         }
 
-    return nStr;
+    return str_num;
     }
 
 //-----------------------------------------------------------------------------
@@ -482,4 +482,3 @@ bool isChapterTitle     (const char* str)
     }
 
 //-----------------------------------------------------------------------------
-
