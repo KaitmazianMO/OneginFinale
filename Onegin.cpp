@@ -420,9 +420,8 @@ int GetStrings          (string     *str, size_t nLines,
                 continue;
                 }
 
-            while ((isspace (*(ch + i)) ||    // пропускаем пробельные символы
-                   *(ch + i) == '.'  )  &&    // и точки в начале строки
-                   i < nChars)
+            while ((isspace (*(ch + i)) ||    
+                   *(ch + i) == '.'  )  &&  i < nChars)
                 {
                 ++i;
                 }
