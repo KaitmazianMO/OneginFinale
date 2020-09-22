@@ -254,7 +254,7 @@ int StringComp          (const string *str1, const string *str2)
                        j < min (str1->size, str2->size); ++i, ++j)
         {
         if (isgraph (*(str1->begin + i)))
-            {                                 |
+            {                                 
             i++;
             if (isspace (*(str1->begin + i)))
                 i++;
