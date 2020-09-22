@@ -389,7 +389,7 @@ size_t SizeOfFile       (FILE *file)
     size_t pos = 0;
 
     fseek (file, 0, SEEK_END);
-    pos = ftell(file);
+    pos = ftell (file);
     fseek (file, 0, SEEK_SET);
 
     return pos;
