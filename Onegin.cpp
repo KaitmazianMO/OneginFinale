@@ -117,7 +117,7 @@ bool   isChapterTitle      (const char* str);
 //! \param [in] buffer    - массив указателей, в который записываются
 //!                         символы файла file_name;
 //!
-//! \return Количество записанных "содержательных" строк в *text.
+//! \return Количество "содержательных" строк, записанных  в *text.
 //}----------------------------------------------------------------------------
 
 size_t GetSortedStrings    (const char *file_name,  string **text,
