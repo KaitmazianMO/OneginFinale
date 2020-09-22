@@ -135,6 +135,8 @@ size_t GetSortedStrings    (const char *file_name,  string **text,
 
 string *CopyText           (string *Text, size_t nLines);
 
+bool ispoint (char ch);
+
 int main ()
     {
     printf ("Text sorting program\n\n");
@@ -398,6 +400,13 @@ size_t SizeOfFile       (FILE *file)
 
 //-----------------------------------------------------------------------------
 
+bool ispoint (char ch)
+    {
+    return ch == '.';
+    }
+
+//-----------------------------------------------------------------------------
+
 int GetStrings          (string     *str, size_t nLines,
                          const char *ch,  size_t nChars)
     {
@@ -419,8 +428,8 @@ int GetStrings          (string     *str, size_t nLines,
                 continue;
                 }
 
-            while ((isspace (*(ch + ch_num)) ||
-                   *(ch + ch_num) == '.'  )  &&  ch_num < nChars)
+            while ((isspace (*(ch + ch_num))  ||
+                    ispoint (*(ch + ch_num))) && ch_num < nChars)
                 ++ch_num;
                
             (str + str_num)->begin = (char *)ch + ch_num;   //!?
