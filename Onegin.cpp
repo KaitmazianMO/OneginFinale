@@ -177,6 +177,8 @@ int main ()
 
 string *CopyText        (const string *Text, size_t nLines)
     {
+    assert (Text != NULL);
+    
     string *cpyText = (string *)calloc (nLines, sizeof(string));
 
     for (size_t i = 0; i < nLines; ++i)
@@ -193,6 +195,9 @@ string *CopyText        (const string *Text, size_t nLines)
 size_t GetSortedStrings (const char *file_name,  string **text,
                                                  char   **buffer)
     {
+    assert (text   != NULL);
+    assert (buffer != NULL);
+    
     FILE *file_ptr = fopen (file_name, "r");
     assert (file_ptr != NULL);
 
@@ -310,7 +315,7 @@ void WriteToFile        (const string* str, size_t nLines, FILE *file)
 
 void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
     {
-    assert(text  != NULL);
+    assert(text != NULL);
     assert(file != NULL);
 
     string *str = CopyText (text, nLines);
@@ -380,6 +385,8 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
 
 size_t SizeOfFile       (FILE *file)
     {
+    assert (file != NULL);
+    
     size_t pos = 0;
 
     fseek (file, 0, SEEK_END);
