@@ -423,8 +423,6 @@ int GetStrings          (string     *str, size_t nLines,
                    *(ch + ch_num) == '.'  )  &&  ch_num < nChars)
                 ++ch_num;
                
-
-
             (str + str_num)->begin = (char *)ch + ch_num;   //!?
             inside = true;
             }
@@ -448,6 +446,8 @@ int GetStrings          (string     *str, size_t nLines,
 
 void PrintTitle         (FILE* file, const char *str)
     {
+    assert (file != NULL);
+    
     char line    [100] = {0};
     char crosline[100] = {0};
 
@@ -468,6 +468,8 @@ void PrintTitle         (FILE* file, const char *str)
 
 bool isChapterTitle     (const char* str)
     {
+    assert (str != NULL);
+    
     for (size_t i = 0; *(str + i) != '\n' && *(str + i) != NULL; ++i)
         {
         if (isprint (*(str + i))) continue;
