@@ -402,10 +402,10 @@ int GetStrings          (string     *str, size_t nLines,
     {
     assert (ch != NULL);
 
-    size_t ch_num  = 0;        // индекс массива ch
-    size_t str_num = 0;        // индекс массива str
-    int    sz_str  = 1;        // размер строки в данный момент
-    bool   inside  = false;    // внутри строки - true, строка закончилась - false
+    size_t ch_num  = 0;        
+    size_t str_num = 0;        
+    int    sz_str  = 1;        
+    bool   inside  = false;    
 
     for (;ch_num < nChars && str_num < nLines; ++ch_num, ++sz_str)
         {
