@@ -91,7 +91,6 @@ void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file);
 
 int    BackStringComp      (const string *str1, const string *str2);
 
-
 //{----------------------------------------------------------------------------
 //! Компаратор для структуры string.
 //}----------------------------------------------------------------------------
