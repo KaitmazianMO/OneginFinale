@@ -177,7 +177,7 @@ int main ()
 string *CopyText        (const string *Text, size_t nLines)
     {
     assert (Text != NULL);
-    
+
     string *cpyText = (string *)calloc (nLines, sizeof(string));
 
     for (size_t i = 0; i < nLines; ++i)
@@ -196,7 +196,7 @@ size_t GetSortedStrings (const char *file_name,  string **text,
     {
     assert (text   != NULL);
     assert (buffer != NULL);
-    
+
     FILE *file_ptr = fopen (file_name, "r");
     assert (file_ptr != NULL);
 
@@ -258,7 +258,7 @@ int StringComp          (const string *str1, const string *str2)
                        j < min (str1->size, str2->size); ++i, ++j)
         {
         if (isgraph (*(str1->begin + i)))
-            {                                 
+            {
             i++;
             if (isspace (*(str1->begin + i)))
                 i++;
@@ -322,7 +322,7 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
     qsort (str, nLines, sizeof(string),
            (int (*)(const void*, const void*))BackStringComp);
 
-    size_t n = 0; //< сколько строк было записано
+    size_t nStr = 0; //< сколько строк было записано
 
     srand ((unsigned int)time (0));
 
@@ -331,10 +331,10 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
 
     size_t step = 14;
 
-    for (; n < nLines; i = (i*j + nLines/step) % nLines,
-                       j = (i*j + nLines/step) % nLines)
+    for (; nStr < nLines; i = (i*j + nLines/step) % nLines,
+                          j = (i*j + nLines/step) % nLines)
         {
-        if      (n % step == 0 )
+        if      (nStr % step == 0 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
@@ -342,10 +342,10 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
             fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
 
-            n += 4;
+            nStr += 4;
             }
 
-        else if (n % step == 4 )
+        else if (nStr % step == 4 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
@@ -353,10 +353,10 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
             fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
             fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
 
-            n += 4;
+            nStr += 4;
             }
 
-        else if (n % step == 8 )
+        else if (nStr % step == 8 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
 
@@ -365,17 +365,17 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
 
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
 
-            n += 4;
+            nStr += 4;
             }
 
-        else if (n % step == 12)
+        else if (nStr % step == 12)
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
 
             fprintf (file, "\n\n");
 
-            n += 2;
+            nStr += 2;
             }
         }
     }
@@ -385,7 +385,7 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
 size_t SizeOfFile       (FILE *file)
     {
     assert (file != NULL);
-    
+
     size_t pos = 0;
 
     fseek (file, 0, SEEK_END);
@@ -402,47 +402,46 @@ int GetStrings          (string     *str, size_t nLines,
     {
     assert (ch != NULL);
 
-    size_t i      = 0;        // индекс массива ch
-    size_t j      = 0;        // индекс массива str
-    int    sz     = 1;        // размер строки в данный момент
+    size_t nCh    = 0;        // индекс массива ch
+    size_t nStr   = 0;        // индекс массива str
+    int    szStr  = 1;        // размер строки в данный момент
     bool   inside = false;    // внутри строки - true, строка закончилась - false
 
-    for (i = 0, j = 0, sz = 1, inside = false;
-           i < nChars && j < nLines; ++i, ++sz)
+    for (;nCh < nChars && nStr < nLines; ++nCh, ++szStr)
         {
         if (!inside)
             {
-            if (isChapterTitle (ch + i))
+            if (isChapterTitle (ch + nCh))
                 {
-                while (*(ch + i) != '\n' && i < nChars) ++i;
-                --sz;     //после continue sz увеличится на 1, хотя должен остаться прежним
+                while (*(ch + nCh) != '\n' && nCh < nChars) ++nCh;
+                --szStr;     //после continue sz увеличится на 1, хотя должен остаться прежним
                 continue;
                 }
 
-            while ((isspace (*(ch + i)) ||    
-                   *(ch + i) == '.'  )  &&  i < nChars)
+            while ((isspace (*(ch + nCh)) ||
+                   *(ch + nCh) == '.'  )  &&  nCh < nChars)
                 {
-                ++i;
+                ++nCh;
                 }
 
 
-            (str + j)->begin = (char *)ch + i;   //!?
+            (str + nStr)->begin = (char *)ch + nCh;   //!?
             inside = true;
             }
 
-        else if (*(ch + i) == '\n')
+        else if (*(ch + nCh) == '\n')
             {
-            (str + j)->size = sz;
-            sz = 0;
+            (str + nStr)->size = szStr;
+            szStr = 0;
 
-            ++j;
+            ++nStr;
 
             inside = false;
             }
-        
+
         }
 
-    return j;
+    return nStr;
     }
 
 //-----------------------------------------------------------------------------
@@ -483,3 +482,4 @@ bool isChapterTitle     (const char* str)
     }
 
 //-----------------------------------------------------------------------------
+
