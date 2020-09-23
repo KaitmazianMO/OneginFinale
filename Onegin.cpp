@@ -107,8 +107,8 @@ int    StringComp          (const string *str1, const string *str2);
 bool   isChapterTitle      (const char* str);
 
 //{----------------------------------------------------------------------------
-//! \brief Записывает все символы файла в буффер и
-//!        преобразует их в массив отсортированных строк.
+//! \brief Записывает все символы файла в буффер и.
+//!        преобразует их в массив отсортированных строк
 //!
 //! \param [in] file_name - имя читаемого файла;
 //! \param [in] text      - адрес указателя на начало массива
@@ -121,8 +121,8 @@ bool   isChapterTitle      (const char* str);
 //! \return Количество записанных "содержательных" строк в *text.
 //}----------------------------------------------------------------------------
 
-size_t GetSortedStrings    (const char *file_name,  string **text,
-                                                    char   **buffer);
+size_t GetSortedStrings    (const char *file_name,  string **text, char   **buffer,
+                            int (*comp) (const void *, const void *));
 
 //{----------------------------------------------------------------------------
 //! \brief Копирует текст в массив и возврашает указатель на его начало.
@@ -142,11 +142,12 @@ int main ()
     printf ("Text sorting program\n\n");
 
     string *Onegin_sorted = NULL;
-    char   *Onegin_text   = NULL;
+    char   *Onegin_buffer = NULL;
 
-    size_t nStrings = GetSortedStrings ("Evgen1.txt", &Onegin_sorted, &Onegin_text);
+    size_t nStrings = GetSortedStrings ("Evgen1.txt", &Onegin_sorted, &Onegin_buffer,
+                                        (int (*)(const void *, const void *)) StringComp);
     assert (Onegin_sorted != NULL);
-    assert (Onegin_text   != NULL);
+    assert (Onegin_buffer != NULL);
 
     FILE *Answer_file = fopen ("Onegin.txt", "w");
     assert (Answer_file != NULL);
@@ -160,16 +161,16 @@ int main ()
     RandomWriteToFile (Onegin_sorted, nStrings, Answer_file);
 
     PrintTitle  (Answer_file, "                   Оригинальный Евгений Онегин");
-    fprintf     (Answer_file, "%s", Onegin_text);
+    fprintf     (Answer_file, "%s", Onegin_buffer);
 
     printf ("Writing finished\n");
 
     fclose (Answer_file  );
-    free   (Onegin_text  );
+    free   (Onegin_buffer);
     free   (Onegin_sorted);
 
     Answer_file   = NULL;
-    Onegin_text   = NULL;
+    Onegin_buffer = NULL;
     Onegin_sorted = NULL;
 
     return 0;
@@ -194,8 +195,8 @@ string *CopyText        (const string *Text, size_t nLines)
 
 //-----------------------------------------------------------------------------
 
-size_t GetSortedStrings (const char *file_name,  string **text,
-                                                 char   **buffer)
+size_t GetSortedStrings    (const char *file_name,  string **text, char **buffer,
+                            int (*comp) (const void *, const void *))
     {
     assert (text   != NULL);
     assert (buffer != NULL);
@@ -215,8 +216,7 @@ size_t GetSortedStrings (const char *file_name,  string **text,
 
     printf ("Start sorting...\n");
 
-    qsort (*text, nStrings, sizeof (string),
-           (int (*)(const void*, const void*))StringComp);
+    qsort (*text, nStrings, sizeof (string), comp);
 
     printf ("Sorting finishied\n\n");
 
@@ -398,6 +398,7 @@ size_t SizeOfFile       (FILE *file)
     return pos;
     }
 
+
 //-----------------------------------------------------------------------------
 
 bool ispoint (char ch)
@@ -412,10 +413,10 @@ int GetStrings          (string     *str, size_t nLines,
     {
     assert (ch != NULL);
 
-    size_t ch_num  = 0;        
-    size_t str_num = 0;        
-    int    sz_str  = 1;        
-    bool   inside  = false;    
+    size_t ch_num  = 0;
+    size_t str_num = 0;
+    int    sz_str  = 1;
+    bool   inside  = false;
 
     for (;ch_num < nChars && str_num < nLines; ++ch_num, ++sz_str)
         {
@@ -431,7 +432,7 @@ int GetStrings          (string     *str, size_t nLines,
             while ((isspace (*(ch + ch_num))  ||
                     ispoint (*(ch + ch_num))) && ch_num < nChars)
                 ++ch_num;
-               
+
             (str + str_num)->begin = (char *)ch + ch_num;   //!?
             inside = true;
             }
@@ -455,8 +456,6 @@ int GetStrings          (string     *str, size_t nLines,
 
 void PrintTitle         (FILE* file, const char *str)
     {
-    assert (file != NULL);
-    
     char line    [100] = {0};
     char crosline[100] = {0};
 
@@ -478,14 +477,14 @@ void PrintTitle         (FILE* file, const char *str)
 bool isChapterTitle     (const char* str)
     {
     assert (str != NULL);
-    
+
     for (size_t i = 0; *(str + i) != '\n' && *(str + i) != NULL; ++i)
         {
         if (isprint (*(str + i))) continue;
 
         if ( !(*(str + i) >= 'A' && *(str + i) <= 'Z' ||
                *(str + i) == 'Х'                      ||
-               *(str + i) >= 'А' && *(str + i) <= 'Я')  )
+               *(str + i) >= 'А' && *(str + i) <= 'Я'   ))
             return false;
         }
 
