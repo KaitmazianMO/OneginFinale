@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include <time.h>
 
+#define min(A, B) (A) < (B) ? A : B
+
 //{----------------------------------------------------------------------------
 //! \brief Считает количество вхождений символа в массиве.
 //!
@@ -17,12 +19,6 @@
 //}----------------------------------------------------------------------------
 
 size_t count      (const char *Array, size_t size, char sym);
-
-//{----------------------------------------------------------------------------
-//! \brief Возвращает минимальный элемент из a и b.
-//}----------------------------------------------------------------------------
-
-int    min        (int a, int b);
 
 //{----------------------------------------------------------------------------
 //! \brief Считает количество символов файле.
@@ -49,8 +45,8 @@ void   PrintTitle (FILE* file, const char *str);
 
 typedef struct string
     {
-    char *begin = NULL;    ///< указатель на начало строки;
-    size_t size = 0;       ///< размер строки;
+    const char *begin = NULL;    ///< указатель на начало строки;
+    size_t size       = 0;       ///< размер строки;
     };
 
 //{----------------------------------------------------------------------------
@@ -66,7 +62,7 @@ typedef struct string
 //! \return Количество записанных в массив строк.
 //}----------------------------------------------------------------------------
 
-int    GetStrings          (string *str, size_t nLines, const char *ch, size_t nChars);
+int    GetStrings     (string *str, size_t nLines, const char *ch, size_t nChars);
 
 //{----------------------------------------------------------------------------
 //! \brief Записывает сожержимое массива строк в файл.
@@ -77,26 +73,25 @@ int    GetStrings          (string *str, size_t nLines, const char *ch, size_t n
 //! \param [in] file   - файл, в который ведется запись;
 //}----------------------------------------------------------------------------
 
-void   WriteToFile         (const string* str, size_t nLines, FILE *file);
+void   WriteToFile    (const string* str, size_t nLines, FILE *file);
 
 //{----------------------------------------------------------------------------
 //! Относительно случайно записывает рифмованные строки в файл.
 //}----------------------------------------------------------------------------
 
-void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file,
-                                 int (*comp) (const void *, const void *));
+void   PrintRhymes    (const string *text, size_t nLines, FILE *file);
 
 //{----------------------------------------------------------------------------
 //! Сравнивает строки с конца, игнорируя знаки пунктуации.
 //}----------------------------------------------------------------------------
 
-int    BackStringComp      (const string *str1, const string *str2);
+int    BackStringComp (const string *str1, const string *str2);
 
 //{----------------------------------------------------------------------------
 //! Компаратор для структуры string.
 //}----------------------------------------------------------------------------
 
-int    StringComp          (const string *str1, const string *str2);
+int    StringComp     (const string *str1, const string *str2);
 
 //{----------------------------------------------------------------------------
 //! \brief Проверяет является ли строка римcкой
@@ -105,7 +100,7 @@ int    StringComp          (const string *str1, const string *str2);
 //! \param [in] - проверяемая строка;
 //}----------------------------------------------------------------------------
 
-bool   isChapterTitle      (const char* str);
+bool   isChapterTitle (const char* str);
 
 //{----------------------------------------------------------------------------
 //! \brief Записывает все символы файла в буффер и.
@@ -122,8 +117,7 @@ bool   isChapterTitle      (const char* str);
 //! \return Количество записанных "содержательных" строк в *text.
 //}----------------------------------------------------------------------------
 
-size_t GetSortedStrings    (const char *file_name,  string **text, char   **buffer,
-                            int (*comp) (const void *, const void *));
+size_t ReadFile       (const char *file_name,  string **text, char   **buffer);
 
 //{----------------------------------------------------------------------------
 //! \brief Копирует текст в массив и возврашает указатель на его начало.
@@ -134,9 +128,9 @@ size_t GetSortedStrings    (const char *file_name,  string **text, char   **buff
 //! \return Возвращает указатель на начало скопированного массива строк.
 //}----------------------------------------------------------------------------
 
-string *CopyText           (string *Text, size_t nLines);
+string *CopyText      (string *Text, size_t nLines);
 
-bool ispoint               (char ch);
+bool ispoint          (char ch);
 
 int main ()
     {
@@ -145,10 +139,16 @@ int main ()
     string *Onegin_sorted = NULL;
     char   *Onegin_buffer = NULL;
 
-    size_t nStrings = GetSortedStrings ("Evgen1.txt", &Onegin_sorted, &Onegin_buffer,
-                                        (int (*)(const void *, const void *)) StringComp);
+    size_t nStrings = ReadFile ("Evgen1.txt", &Onegin_sorted, &Onegin_buffer);
     assert (Onegin_sorted != NULL);
     assert (Onegin_buffer != NULL);
+
+    printf ("Start text sorting...\n");
+
+    qsort (Onegin_sorted, nStrings, sizeof (string),
+           (int (*)(const void*, const void*))StringComp);
+
+    printf ("Sorting finished\n\n"   );
 
     FILE *Answer_file = fopen ("Onegin.txt", "w");
     assert (Answer_file != NULL);
@@ -158,9 +158,8 @@ int main ()
     PrintTitle  (Answer_file, "Евгений Онегин, отсортированный по возрастанию");
     WriteToFile (Onegin_sorted, nStrings, Answer_file);
 
-    PrintTitle        (Answer_file,  "           Евгений Онегин by Netflix...");
-    RandomWriteToFile (Onegin_sorted, nStrings, Answer_file,
-                             (int (*)(const void*, const void*))BackStringComp);
+    PrintTitle  (Answer_file,  "                 Евгений Онегин by Netflix...");
+    PrintRhymes (Onegin_sorted, nStrings, Answer_file);
 
     PrintTitle  (Answer_file, "                   Оригинальный Евгений Онегин");
     fprintf     (Answer_file, "%s", Onegin_buffer);
@@ -180,25 +179,21 @@ int main ()
 
 //-----------------------------------------------------------------------------
 
-string *CopyText        (const string *Text, size_t nLines)
+string *CopyText (const string *Text, size_t nLines)
     {
     assert (Text != NULL);
 
     string *cpyText = (string *)calloc (nLines, sizeof(string));
 
     for (size_t i = 0; i < nLines; ++i)
-        {
-        (cpyText + i)->begin = (Text + i)->begin;
-        (cpyText + i)->size  = (Text + i)->size;
-        }
+        *(cpyText + i) = *(Text + i);
 
     return cpyText;
     }
 
 //-----------------------------------------------------------------------------
 
-size_t GetSortedStrings    (const char *file_name,  string **text, char **buffer,
-                            int (*comp) (const void *, const void *))
+size_t ReadFile (const char *file_name,  string **text, char **buffer)
     {
     assert (text   != NULL);
     assert (buffer != NULL);
@@ -206,7 +201,7 @@ size_t GetSortedStrings    (const char *file_name,  string **text, char **buffer
     FILE *file_ptr = fopen (file_name, "r");
     assert (file_ptr != NULL);
 
-    *buffer = (char *)calloc (SizeOfFile (file_ptr), sizeof (char));
+    *buffer = (char *)calloc (SizeOfFile (file_ptr) + 1, sizeof (char));
 
     size_t nSym = fread (*buffer, sizeof(char), SizeOfFile (file_ptr),
                          file_ptr);
@@ -216,12 +211,6 @@ size_t GetSortedStrings    (const char *file_name,  string **text, char **buffer
 
     nStrings = GetStrings (*text, nStrings, *buffer, nSym);
 
-    printf ("Start sorting...\n");
-
-    qsort (*text, nStrings, sizeof (string), comp);
-
-    printf ("Sorting finishied\n\n");
-
     fclose (file_ptr);
     file_ptr = NULL;
 
@@ -230,7 +219,7 @@ size_t GetSortedStrings    (const char *file_name,  string **text, char **buffer
 
 //-----------------------------------------------------------------------------
 
-size_t count            (const char *Array, size_t size, char sym)
+size_t count (const char *Array, size_t size, char sym)
     {
     assert (Array != NULL);
 
@@ -243,16 +232,10 @@ size_t count            (const char *Array, size_t size, char sym)
     return count;
     }
 
-//-----------------------------------------------------------------------------
-
-int min                 (int a, int b)
-    {
-    return (a < b) ? a : b;
-    }
 
 //-----------------------------------------------------------------------------
 
-int StringComp          (const string *str1, const string *str2)
+int StringComp (const string *str1, const string *str2)
     {
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
@@ -284,7 +267,7 @@ int StringComp          (const string *str1, const string *str2)
 
 //-----------------------------------------------------------------------------
 
-int BackStringComp      (const string *str1, const string *str2)
+int BackStringComp (const string *str1, const string *str2)
     {
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
@@ -305,7 +288,7 @@ int BackStringComp      (const string *str1, const string *str2)
 
 //-----------------------------------------------------------------------------
 
-void WriteToFile        (const string* str, size_t nLines, FILE *file)
+void WriteToFile (const string* str, size_t nLines, FILE *file)
     {
     assert (file != NULL);
     assert (str  != NULL);
@@ -317,15 +300,15 @@ void WriteToFile        (const string* str, size_t nLines, FILE *file)
 
 //-----------------------------------------------------------------------------
 
-void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file,
-                                 int (*comp) (const void *, const void *))
+void   PrintRhymes (const string *text, size_t nLines, FILE *file)
     {
     assert(text != NULL);
     assert(file != NULL);
 
     string *str = CopyText (text, nLines);
 
-    qsort (str, nLines, sizeof(string), comp);
+    qsort (str, nLines, sizeof(string),
+           (int (*)(const void*, const void*))StringComp);
 
     size_t str_num = 0; //< сколько строк было записано
 
@@ -387,7 +370,7 @@ void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file,
 
 //-----------------------------------------------------------------------------
 
-size_t SizeOfFile       (FILE *file)
+size_t SizeOfFile (FILE *file)
     {
     assert (file != NULL);
 
@@ -410,8 +393,8 @@ bool ispoint (char ch)
 
 //-----------------------------------------------------------------------------
 
-int GetStrings          (string     *str, size_t nLines,
-                         const char *ch,  size_t nChars)
+int GetStrings (string     *str, size_t nLines,
+                const char *ch,  size_t nChars)
     {
     assert (ch != NULL);
 
@@ -435,7 +418,7 @@ int GetStrings          (string     *str, size_t nLines,
                     ispoint (*(ch + ch_num))) && ch_num < nChars)
                 ++ch_num;
 
-            (str + str_num)->begin = (char *)ch + ch_num;   //!?
+            (str + str_num)->begin = ch + ch_num;   //!?  const char * const ch
             inside = true;
             }
 
@@ -456,7 +439,7 @@ int GetStrings          (string     *str, size_t nLines,
 
 //-----------------------------------------------------------------------------
 
-void PrintTitle         (FILE* file, const char *str)
+void PrintTitle (FILE* file, const char *str)
     {
     char line    [100] = {0};
     char crosline[100] = {0};
@@ -476,7 +459,7 @@ void PrintTitle         (FILE* file, const char *str)
 
 //-----------------------------------------------------------------------------
 
-bool isChapterTitle     (const char* str)
+bool isChapterTitle (const char* str)
     {
     assert (str != NULL);
 
