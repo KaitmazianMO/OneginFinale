@@ -83,7 +83,8 @@ void   WriteToFile         (const string* str, size_t nLines, FILE *file);
 //! Относительно случайно записывает рифмованные строки в файл.
 //}----------------------------------------------------------------------------
 
-void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file);
+void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file,
+                                 int (*comp) (const void *, const void *));
 
 //{----------------------------------------------------------------------------
 //! Сравнивает строки с конца, игнорируя знаки пунктуации.
@@ -158,7 +159,8 @@ int main ()
     WriteToFile (Onegin_sorted, nStrings, Answer_file);
 
     PrintTitle        (Answer_file,  "           Евгений Онегин by Netflix...");
-    RandomWriteToFile (Onegin_sorted, nStrings, Answer_file);
+    RandomWriteToFile (Onegin_sorted, nStrings, Answer_file,
+                             (int (*)(const void*, const void*))BackStringComp);
 
     PrintTitle  (Answer_file, "                   Оригинальный Евгений Онегин");
     fprintf     (Answer_file, "%s", Onegin_buffer);
@@ -315,29 +317,29 @@ void WriteToFile        (const string* str, size_t nLines, FILE *file)
 
 //-----------------------------------------------------------------------------
 
-void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
+void   RandomWriteToFile   (const string *text, size_t nLines, FILE *file,
+                                 int (*comp) (const void *, const void *))
     {
     assert(text != NULL);
     assert(file != NULL);
 
     string *str = CopyText (text, nLines);
 
-    qsort (str, nLines, sizeof(string),
-           (int (*)(const void*, const void*))BackStringComp);
+    qsort (str, nLines, sizeof(string), comp);
 
-    size_t nStr = 0; //< сколько строк было записано
+    size_t str_num = 0; //< сколько строк было записано
 
     srand ((unsigned int)time (0));
 
-    size_t i = rand () % nLines;  //< индекс для первой строки
-    size_t j = rand () % nLines;  //< индекс для второй строки
+    size_t i = rand () % (nLines - 2);  //< индекс для первой строки
+    size_t j = rand () % (nLines - 2);  //< индекс для второй строки
 
     size_t step = 14;
 
-    for (; nStr < nLines; i = (i*j + nLines/step) % nLines,
-                          j = (i*j + nLines/step) % nLines)
+    for (; str_num < nLines; i = (i*j + nLines/step) % (nLines - 2),
+                             j = (i*j + nLines/step) % (nLines - 2))
         {
-        if      (nStr % step == 0 )
+        if      (str_num % step == 0 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
@@ -345,10 +347,10 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
             fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
 
-            nStr += 4;
+            str_num += 4;
             }
 
-        else if (nStr % step == 4 )
+        else if (str_num % step == 4 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
@@ -356,10 +358,10 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
             fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
             fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
 
-            nStr += 4;
+            str_num += 4;
             }
 
-        else if (nStr % step == 8 )
+        else if (str_num % step == 8 )
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
 
@@ -368,17 +370,17 @@ void RandomWriteToFile  (const string* text, size_t nLines, FILE *file)
 
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
 
-            nStr += 4;
+            str_num += 4;
             }
 
-        else if (nStr % step == 12)
+        else if (str_num % step == 12)
             {
             fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
             fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
 
             fprintf (file, "\n\n");
 
-            nStr += 2;
+            str_num += 2;
             }
         }
     }
