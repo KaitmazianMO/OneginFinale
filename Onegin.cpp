@@ -136,7 +136,7 @@ size_t GetSortedStrings    (const char *file_name,  string **text, char   **buff
 
 string *CopyText           (string *Text, size_t nLines);
 
-bool ispoint (char ch);
+bool ispoint               (char ch);
 
 int main ()
     {
