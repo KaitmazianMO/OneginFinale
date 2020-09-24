@@ -6,7 +6,9 @@
 #include <ctype.h>
 #include <time.h>
 
-#define min(A, B) (A) < (B) ? A : B
+const int EMPTY = -1;
+
+#define min(A, B) (A) < (B) ? (A) : (B)
 
 //{----------------------------------------------------------------------------
 //! \brief Считает количество вхождений символа в массиве.
@@ -62,7 +64,8 @@ typedef struct string
 //! \return Количество записанных в массив строк.
 //}----------------------------------------------------------------------------
 
-int    GetStrings     (string *str, size_t nLines, const char *ch, size_t nChars);
+int    GetStrings     (string     *str, size_t nLines,
+                       const char *ch,  size_t nChars);
 
 //{----------------------------------------------------------------------------
 //! \brief Записывает сожержимое массива строк в файл.
@@ -85,13 +88,13 @@ void   PrintRhymes    (const string *text, size_t nLines, FILE *file);
 //! Сравнивает строки с конца, игнорируя знаки пунктуации.
 //}----------------------------------------------------------------------------
 
-int    BackStringComp (const string *str1, const string *str2);
+int    BackStringComp (const void *void_str1, const void *void_str2);
 
 //{----------------------------------------------------------------------------
 //! Компаратор для структуры string.
 //}----------------------------------------------------------------------------
 
-int    StringComp     (const string *str1, const string *str2);
+int    StringComp     (const void *void_str1, const void *void_str2);
 
 //{----------------------------------------------------------------------------
 //! \brief Проверяет является ли строка римcкой
@@ -103,8 +106,8 @@ int    StringComp     (const string *str1, const string *str2);
 bool   isChapterTitle (const char* str);
 
 //{----------------------------------------------------------------------------
-//! \brief Записывает все символы файла в буффер и
-//!        преобразует их в массив строк. 
+//! \brief Записывает все символы файла в буффер и.
+//!        преобразует их в массив отсортированных строк
 //!
 //! \param [in] file_name - имя читаемого файла;
 //! \param [in] text      - адрес указателя на начало массива
@@ -130,7 +133,21 @@ size_t ReadFile       (const char *file_name,  string **text, char   **buffer);
 
 string *CopyText      (string *Text, size_t nLines);
 
-bool ispoint          (char ch);
+bool   ispoint        (char ch);
+
+//{----------------------------------------------------------------------------
+//! \brief Вспомогательная функция для PrintRhymes()
+//!
+//! \param [in] file       - файл, в который ведется запись;
+//! \param [in] rhymes     - массив строк, в котором близкие
+//!                          строки рифмуются;
+//! \param [in] num1,2,3,4 - номер строк в массиве rhymes;
+//!
+//! \return Количество записанных непустых строк.
+//}----------------------------------------------------------------------------
+
+size_t DoRhyme        (FILE *file, const string* rhymes, int num1, int num2,
+                                                         int num3, int num4);
 
 int main ()
     {
@@ -145,10 +162,9 @@ int main ()
 
     printf ("Start text sorting...\n");
 
-    qsort (Onegin_sorted, nStrings, sizeof (string),
-           (int (*)(const void*, const void*))StringComp);
+    qsort (Onegin_sorted, nStrings, sizeof (string), StringComp);
 
-    printf ("Sorting finished\n\n"   );
+    printf ("Sorting finished\n\n");
 
     FILE *Answer_file = fopen ("Onegin.txt", "w");
     assert (Answer_file != NULL);
@@ -235,8 +251,11 @@ size_t count (const char *Array, size_t size, char sym)
 
 //-----------------------------------------------------------------------------
 
-int StringComp (const string *str1, const string *str2)
+int StringComp (const void *void_str1, const void *void_str2)
     {
+    const string *str1 = (string *)void_str1;
+    const string *str2 = (string *)void_str2;
+    
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
 
@@ -267,8 +286,11 @@ int StringComp (const string *str1, const string *str2)
 
 //-----------------------------------------------------------------------------
 
-int BackStringComp (const string *str1, const string *str2)
+int BackStringComp (const void *void_str1, const void *void_str2)
     {
+    const string *str1 = (string *)void_str1;
+    const string *str2 = (string *)void_str2;
+
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
 
@@ -300,15 +322,15 @@ void WriteToFile (const string* str, size_t nLines, FILE *file)
 
 //-----------------------------------------------------------------------------
 
-void   PrintRhymes (const string *text, size_t nLines, FILE *file)
+void PrintRhymes (const string *text, size_t nLines, FILE *file)
     {
+
     assert(text != NULL);
     assert(file != NULL);
 
     string *str = CopyText (text, nLines);
 
-    qsort (str, nLines, sizeof(string),
-           (int (*)(const void*, const void*))StringComp);
+    qsort (str, nLines, sizeof(string), BackStringComp);
 
     size_t str_num = 0; //< сколько строк было записано
 
@@ -323,49 +345,46 @@ void   PrintRhymes (const string *text, size_t nLines, FILE *file)
                              j = (i*j + nLines/step) % (nLines - 2))
         {
         if      (str_num % step == 0 )
-            {
-            fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
-            fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
+            str_num += DoRhyme (file, str, i, j    , i + 2, j + 2);
 
-            fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
-            fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
-
-            str_num += 4;
-            }
 
         else if (str_num % step == 4 )
-            {
-            fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
-            fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
-
-            fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
-            fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
-
-            str_num += 4;
-            }
+            str_num += DoRhyme (file, str, i, i + 2, j    , j + 2);
 
         else if (str_num % step == 8 )
-            {
-            fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
+            str_num += DoRhyme (file, str, i, j    , j + 2, i + 2);
 
-            fprintf (file, "%.*s", (str + j)->size,     (str + j)->begin    );
-            fprintf (file, "%.*s", (str + j + 2)->size, (str + j + 2)->begin);
-
-            fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
-
-            str_num += 4;
-            }
 
         else if (str_num % step == 12)
-            {
-            fprintf (file, "%.*s", (str + i)->size,     (str + i)->begin    );
-            fprintf (file, "%.*s", (str + i + 2)->size, (str + i + 2)->begin);
+            str_num += DoRhyme (file, str, i, i + 2, EMPTY, EMPTY);
 
-            fprintf (file, "\n\n");
-
-            str_num += 2;
-            }
         }
+    }
+
+//-----------------------------------------------------------------------------
+
+size_t DoRhyme    (FILE *file, const string* rhymes, int num1, int num2,
+                                                     int num3, int num4)
+    {
+    #define PrintString(num) if((num) == EMPTY)                                 \
+                                fprintf(file, "\n");                            \
+                             else                                               \
+                                {                                               \
+                                fprintf (file, "%.*s", (rhymes + (num))->size,  \
+                                                       (rhymes + (num))->begin);\
+                                ++nStr;                                         \
+                                }
+
+    size_t nStr = 0;
+
+    PrintString(num1)
+    PrintString(num2)
+    PrintString(num3)
+    PrintString(num4)
+
+    #undef PrintStirng
+
+    return nStr;
     }
 
 //-----------------------------------------------------------------------------
