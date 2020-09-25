@@ -149,14 +149,17 @@ bool   ispoint        (char ch);
 size_t DoRhyme        (FILE *file, const string* rhymes, int num1, int num2,
                                                          int num3, int num4);
 
-int main ()
+#define INPUT_FILE  argv[0]
+#define OUTPUT_FILE argv[1]
+
+int main (int argc, char *argv[])
     {
     printf ("Text sorting program\n\n");
 
     string *Onegin_sorted = NULL;
     char   *Onegin_buffer = NULL;
 
-    size_t nStrings = ReadFile ("Evgen1.txt", &Onegin_sorted, &Onegin_buffer);
+    size_t nStrings = ReadFile (INPUT_FILE, &Onegin_sorted, &Onegin_buffer);
     assert (Onegin_sorted != NULL);
     assert (Onegin_buffer != NULL);
 
@@ -166,7 +169,7 @@ int main ()
 
     printf ("Sorting finished\n\n");
 
-    FILE *Answer_file = fopen ("Onegin.txt", "w");
+    FILE *Answer_file = fopen (OUTPUT_FILE, "w");
     assert (Answer_file != NULL);
 
     printf ("Start writing to file...\n");
@@ -174,7 +177,7 @@ int main ()
     PrintTitle  (Answer_file, "Евгений Онегин, отсортированный по возрастанию");
     WriteToFile (Onegin_sorted, nStrings, Answer_file);
 
-    PrintTitle  (Answer_file,  "                 Евгений Онегин by Netflix...");
+    PrintTitle  (Answer_file,  "                               Бредогенератор");
     PrintRhymes (Onegin_sorted, nStrings, Answer_file);
 
     PrintTitle  (Answer_file, "                   Оригинальный Евгений Онегин");
