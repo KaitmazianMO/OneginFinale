@@ -8,6 +8,12 @@
 
 const int EMPTY = -1;
 
+const char *DEFAULT_INPUT_FILE  = "Onegin.txt";
+const char *DEFAULT_OUTPUT_FILE = "Onegin.txt";
+
+#define INPUT_FILE  argv[1]
+#define OUTPUT_FILE argv[2]
+
 #define min(A, B) (A) < (B) ? (A) : (B)
 
 //{----------------------------------------------------------------------------
@@ -140,7 +146,7 @@ bool   ispoint        (char ch);
 //!
 //! \param [in] file       - файл, в который ведется запись;
 //! \param [in] rhymes     - массив строк, в котором близкие
-//!                          строки рифмуются;
+//!                          друг к другу строки рифмуются;
 //! \param [in] num1,2,3,4 - номер строк в массиве rhymes;
 //!
 //! \return Количество записанных непустых строк.
@@ -149,9 +155,6 @@ bool   ispoint        (char ch);
 size_t DoRhyme        (FILE *file, const string* rhymes, int num1, int num2,
                                                          int num3, int num4);
 
-#define INPUT_FILE  argv[0]
-#define OUTPUT_FILE argv[1]
-
 int main (int argc, char *argv[])
     {
     printf ("Text sorting program\n\n");
@@ -159,7 +162,9 @@ int main (int argc, char *argv[])
     string *Onegin_sorted = NULL;
     char   *Onegin_buffer = NULL;
 
-    size_t nStrings = ReadFile (INPUT_FILE, &Onegin_sorted, &Onegin_buffer);
+    size_t nStrings = ReadFile ((argc >= 2) ? INPUT_FILE : DEFAULT_INPUT_FILE,
+                                 &Onegin_sorted, &Onegin_buffer);
+
     assert (Onegin_sorted != NULL);
     assert (Onegin_buffer != NULL);
 
@@ -169,7 +174,8 @@ int main (int argc, char *argv[])
 
     printf ("Sorting finished\n\n");
 
-    FILE *Answer_file = fopen (OUTPUT_FILE, "w");
+    FILE *Answer_file = fopen ((argc >= 3) ? OUTPUT_FILE :
+                                             DEFAULT_OUTPUT_FILE, "w");
     assert (Answer_file != NULL);
 
     printf ("Start writing to file...\n");
@@ -212,26 +218,36 @@ string *CopyText (const string *Text, size_t nLines)
 
 //-----------------------------------------------------------------------------
 
+size_t ReadBuffer (const char *file_name, char **buffer_ptr)
+    {
+    FILE *file_ptr = fopen (file_name, "r");
+    assert (file_ptr != NULL);
+
+    *buffer_ptr = (char *)calloc (SizeOfFile (file_ptr) + 1, sizeof (char));
+
+     size_t nSym = fread (*buffer_ptr, sizeof(char),
+                          SizeOfFile (file_ptr),
+                          file_ptr);
+
+    fclose (file_ptr);
+    file_ptr = NULL;
+
+    return nSym;
+    }
+
+//-----------------------------------------------------------------------------
+
 size_t ReadFile (const char *file_name,  string **text, char **buffer)
     {
     assert (text   != NULL);
     assert (buffer != NULL);
 
-    FILE *file_ptr = fopen (file_name, "r");
-    assert (file_ptr != NULL);
-
-    *buffer = (char *)calloc (SizeOfFile (file_ptr) + 1, sizeof (char));
-
-    size_t nSym = fread (*buffer, sizeof(char), SizeOfFile (file_ptr),
-                         file_ptr);
+    size_t nSym = ReadBuffer (file_name, buffer);
 
     size_t nStrings = count (*buffer, nSym, '\n');
     *text           = (string *)calloc (nStrings, sizeof (string));
 
     nStrings = GetStrings (*text, nStrings, *buffer, nSym);
-
-    fclose (file_ptr);
-    file_ptr = NULL;
 
     return nStrings;
     }
@@ -258,7 +274,7 @@ int StringComp (const void *void_str1, const void *void_str2)
     {
     const string *str1 = (string *)void_str1;
     const string *str2 = (string *)void_str2;
-    
+
     assert (str1->begin != NULL);
     assert (str2->begin != NULL);
 
@@ -273,6 +289,7 @@ int StringComp (const void *void_str1, const void *void_str2)
             if (isspace (*(str1->begin + i)))
                 i++;
             }
+
         if (isgraph (*(str2->begin + j)))
             {
             j++;
@@ -350,13 +367,11 @@ void PrintRhymes (const string *text, size_t nLines, FILE *file)
         if      (str_num % step == 0 )
             str_num += DoRhyme (file, str, i, j    , i + 2, j + 2);
 
-
         else if (str_num % step == 4 )
             str_num += DoRhyme (file, str, i, i + 2, j    , j + 2);
 
         else if (str_num % step == 8 )
             str_num += DoRhyme (file, str, i, j    , j + 2, i + 2);
-
 
         else if (str_num % step == 12)
             str_num += DoRhyme (file, str, i, i + 2, EMPTY, EMPTY);
@@ -396,13 +411,17 @@ size_t SizeOfFile (FILE *file)
     {
     assert (file != NULL);
 
-    size_t pos = 0;
+    size_t cur_pos = ftell(file);
+
+    size_t size = 0;
 
     fseek (file, 0, SEEK_END);
-    pos = ftell(file);
-    fseek (file, 0, SEEK_SET);
+    size = ftell (file);
+    assert (size != -1);
 
-    return pos;
+    fseek (file, cur_pos, SEEK_SET);
+
+    return size;
     }
 
 
@@ -463,20 +482,28 @@ int GetStrings (string     *str, size_t nLines,
 
 void PrintTitle (FILE* file, const char *str)
     {
-    char line    [100] = {0};
-    char crosline[100] = {0};
+    #define PrintLine(sym) for (size_t i = 0; i < 100; ++i)     \
+                               {                                \
+                               fprintf (file, "%c", (sym));     \
+                                   if (i == 99)                 \
+                                       fprintf (file, "\n");    \
+                               }
 
-    for (size_t i = 0; i < 100; ++i)
-        {
-        line[i]     = '-';
-        crosline[i] = '|';
-        }
+    fprintf (file, "\n\n\n");
+    PrintLine('-')
+    PrintLine('|')
+    PrintLine('|')
+    PrintLine('-')
 
-    fprintf (file, "\n\n%.100s\n%.100s\n%.100s\n%.100s\n\n",
-             line, crosline, crosline, line);
-    fprintf (file, "\n\n\n\n\n%60s\n\n\n\n\n", str);
-    fprintf (file, "%.100s\n%.100s\n%.100s\n%.100s\n\n\n\n",
-             line, crosline, crosline, line);
+    fprintf (file, "\n\n\n\n\n\n%60s\n\n\n\n\n\n", str);
+
+    PrintLine('-')
+    PrintLine('|')
+    PrintLine('|')
+    PrintLine('-')
+    fprintf (file, "\n\n\n");
+
+    #undef PrintLine
     }
 
 //-----------------------------------------------------------------------------
